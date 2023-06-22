@@ -8,7 +8,9 @@ public class Learning_CPP_Racing : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "PhysXVehicles", "HeadMountedDisplay" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore",
+			"PhysXVehicles", "HeadMountedDisplay","OnlineSubSystem", "OnlineSubSystemNull",
+			"OnlineSubsystemSteam" });
 
 		PublicDefinitions.Add("HMD_MODULE_INCLUDED=1");
 	}
