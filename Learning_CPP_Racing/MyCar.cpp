@@ -94,13 +94,13 @@ void AMyCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AMyCar::MoveForward(float Value)
 {
 	//if (Value == 0)return;
-	GEngine->AddOnScreenDebugMessage(1,0.2,FColor::Red,FString("Car: MoveForward input taken."));
+	//GEngine->AddOnScreenDebugMessage(1,0.2,FColor::Red,FString("Car: MoveForward input taken."));
 	GetVehicleMovementComponent()->SetThrottleInput(Value);
 }
 
 void AMyCar::MoveRight(float Value)
 {
 	//if (Value == 0)return;
-	GEngine->AddOnScreenDebugMessage(1, 0.2, FColor::Red, FString("Car: MoveRight input taken."));
+	//GEngine->AddOnScreenDebugMessage(1, 0.2, FColor::Red, FString("Car: MoveRight input taken."));
 	GetVehicleMovementComponent()->SetSteeringInput(Value);
 }

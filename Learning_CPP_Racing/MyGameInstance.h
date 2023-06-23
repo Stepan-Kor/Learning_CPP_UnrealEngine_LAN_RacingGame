@@ -21,6 +21,7 @@ protected:
 	const FName StandartSessionName{"Standart Session Name"};
 	bool SessionInCreation = false;
 	bool SessionsSearchInProgress = false;
+	bool ConectingToSessionInProcess = false;
 	IOnlineSessionPtr SessionInterface;
 
 public:
@@ -29,5 +30,7 @@ public:
 	UFUNCTION()void SessionCreationFinished(FName SessionName,bool Result);
 	TSharedPtr <FOnlineSessionSearch> SessionSearchResult;
 	bool SearchForSessions();
-	UFUNCTION()bool SearchForSessionsComplete();
+	UFUNCTION()void SearchForSessionsComplete(bool Success);
+	bool JoinOnlineSession(FName SessionName,FOnlineSessionSearchResult& DesiredSession);
+	void JoinOnlineSessionComplete(FName SessionName,EOnJoinSessionCompleteResult::Type ResultType);
 };

@@ -25,4 +25,6 @@ protected:
 	virtual bool Initialize() override;
 	UFUNCTION() void Resume();
 	APlayerController* PlayerController;
+	UFUNCTION() void BackToMenu();
+	UFUNCTION() void QuitGame();
 };

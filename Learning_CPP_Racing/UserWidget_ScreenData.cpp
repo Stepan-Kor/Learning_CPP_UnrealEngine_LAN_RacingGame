@@ -2,12 +2,14 @@
 
 
 #include "UserWidget_ScreenData.h"
+#include "Kismet/GameplayStatics.h"
 
 
 bool UUserWidget_ScreenData::Initialize()
 {
 	Super::Initialize();
 	if (Button_Resume)Button_Resume->OnClicked.AddDynamic(this,&UUserWidget_ScreenData::Resume);
+	if (Button_Exit)Button_Exit->OnClicked.AddDynamic(this,&UUserWidget_ScreenData::QuitGame);
 	PlayerController = GetWorld()->GetFirstPlayerController();
 	return true;
 }
@@ -20,6 +22,16 @@ void UUserWidget_ScreenData::Resume()
 	VerticalBox_Buttons->SetVisibility(ESlateVisibility::Hidden);
 }
 
+void UUserWidget_ScreenData::BackToMenu()
+{
+
+}
+
+void UUserWidget_ScreenData::QuitGame()
+{
+	UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(),EQuitPreference::Quit,true);
+}
+
 void UUserWidget_ScreenData::Pause()
 {
 	if (!IsValid(PlayerController))return;
@@ -27,4 +39,3 @@ void UUserWidget_ScreenData::Pause()
 	PlayerController->SetInputMode(FInputModeUIOnly());
 	PlayerController->SetShowMouseCursor(true);
 }
-

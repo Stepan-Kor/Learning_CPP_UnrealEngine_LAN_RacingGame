@@ -40,7 +40,9 @@ void UMain_Menu_widget::SessionCreated(FName SessionName, bool Result)
 
 void UMain_Menu_widget::SessionsListUpdated(bool Result)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Main menu widget: Update sessions list done %d."),Result);
+	FString TempString = Result ? "Success" : "Fail";
+	UE_LOG(LogTemp, Warning, TEXT("Main menu widget: Update sessions list done %s - amount of sessions: %i."),
+		*TempString, GameInstance->SessionSearchResult->SearchResults.Num());
 	Button_RefreshSessionList->SetIsEnabled(true);
 	UWidget_SessionDesscription* TempWidget; 
 	ScrollBox_SessionsList->ClearChildren();
@@ -50,27 +52,32 @@ void UMain_Menu_widget::SessionsListUpdated(bool Result)
 	for(FOnlineSessionSearchResult SomeSession : GameInstance->SessionSearchResult->SearchResults) {
 		SessionName = "Uknown session";
 		SomeSession.Session.SessionSettings.Get(FName("SERVER_NAME_KEY"), SessionName);
-		UE_LOG(LogTemp, Warning, TEXT("MainMenu widget: found %s session."),SessionName);
+		UE_LOG(LogTemp, Warning, TEXT("MainMenu widget: found %s session."),*SessionName);
 		HostName = "Uknown host";
 		SomeSession.Session.SessionSettings.Get(FName("SERVER_HOSTNAME_KEY"), HostName);
 		PlayersNumberInt32= SomeSession.Session.SessionSettings.NumPrivateConnections
 			+ SomeSession.Session.SessionSettings.NumPublicConnections;
 		PlayersNumberString = FString::FromInt( PlayersNumberInt32);
 		PlayersNumberString += "/5";
-		TempWidget = CreateWidget<UWidget_SessionDesscription>(this, UWidget_SessionDesscription::StaticClass());
+		TempWidget = CreateWidget<UWidget_SessionDesscription>(this, WidgetSessionDescription);
 		TempWidget->StartSetting(FText::FromString(SessionName),
-			FText::FromString(HostName), FText::FromString(PlayersNumberString));
+			FText::FromString(HostName), FText::FromString(PlayersNumberString), SomeSession);
 		ScrollBox_SessionsList->AddChild(TempWidget);
 	}
-	
 }
 
 void UMain_Menu_widget::UpdateSessionsList()
 {
-	UE_LOG(LogTemp,Warning,TEXT("Main menu widget: Update sessions list pressed."));
-	if (!IsValid(GameInstance))return;
+	if (!IsValid(GameInstance)) {
+		UE_LOG(LogTemp, Warning, TEXT("Main menu widget: Update sessions start faied - no game instance."));
+		return; }
+	bool TempBool = GameInstance->SearchForSessions();
+	if (!TempBool) {
+		UE_LOG(LogTemp, Warning, TEXT("Main menu widget: Update sessions list failed refused game instance."));
+		return;
+	};
+	UE_LOG(LogTemp,Warning,TEXT("Main menu widget: Update sessions list started..."));
 	Button_RefreshSessionList->SetIsEnabled(false);
-	GameInstance->SearchForSessions();
 
 }
 

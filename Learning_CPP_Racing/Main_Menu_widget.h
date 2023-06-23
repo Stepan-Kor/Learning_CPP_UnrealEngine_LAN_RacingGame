@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Widget_SessionDesscription.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
 #include "Components/ScrollBox.h"
@@ -37,5 +38,7 @@ protected:
 	UPROPERTY(meta = (BindWidget))UEditableTextBox* TextBox_SessionName;
 	UFUNCTION() void QuitGame();
 	UFUNCTION() void StartSoloGame();
+	UPROPERTY(EditDefaultsOnly) TSubclassOf<UWidget_SessionDesscription> WidgetSessionDescription =
+		UWidget_SessionDesscription::StaticClass();
 	
 };
