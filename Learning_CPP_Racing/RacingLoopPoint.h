@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameState_Playing.h"
 #include "RacingLoopPoint.generated.h"
 
 UCLASS()
@@ -21,7 +22,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)UStaticMeshComponent* Mesh;
 	UFUNCTION()void BodyStartOverap(UPrimitiveComponent* OverlapedComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool FromSweep, const FHitResult& HitResut);
-
+	AGameState_Playing* GameState;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

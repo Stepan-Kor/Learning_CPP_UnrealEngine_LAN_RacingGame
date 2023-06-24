@@ -59,6 +59,12 @@ AMyCar::AMyCar()
 	//bInReverseGear = false;
 }
 
+void AMyCar::ChangePoints(int8 Diference)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Car: Call game state to change points."));
+	if (GameState)GameState->ChangePlayersPoints(Cast< APlayerController_Racing>(GetController()),3);
+}
+
 // Called when the game starts or when spawned
 void AMyCar::BeginPlay()
 {

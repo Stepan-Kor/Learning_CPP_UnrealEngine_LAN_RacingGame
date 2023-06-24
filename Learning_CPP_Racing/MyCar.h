@@ -23,6 +23,7 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly) UCameraComponent* BackCamera;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly) UCameraComponent* FrontCamera;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly) UTextRenderComponent* SpeedPanelText;
+	void ChangePoints(int8 Diference);
 
 protected:
 	// Called when the game starts or when spawned
