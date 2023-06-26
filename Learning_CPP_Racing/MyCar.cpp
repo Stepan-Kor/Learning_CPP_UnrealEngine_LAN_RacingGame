@@ -4,9 +4,11 @@
 #include "MyCar.h"
 #include "UserWidget_ScreenData.h"
 #include "GameState_Playing.h"
+#include "PlayerController_Racing.h"
 #include "Learning_CPP_RacingWheelFront.h"
 #include "Learning_CPP_RacingWheelRear.h"
 #include "WheeledVehicleMovementComponent4w.h"
+#include "PlayerState_Racing.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -59,11 +61,6 @@ AMyCar::AMyCar()
 	//bInReverseGear = false;
 }
 
-void AMyCar::ChangePoints(int8 Diference)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Car: Call game state to change points."));
-	if (GameState)GameState->ChangePlayersPoints(Cast< APlayerController_Racing>(GetController()),3);
-}
 
 // Called when the game starts or when spawned
 void AMyCar::BeginPlay()
@@ -71,22 +68,19 @@ void AMyCar::BeginPlay()
 	Super::BeginPlay();
 	GameState=Cast<AGameState_Playing >(UGameplayStatics::GetGameState(GetWorld()));
 	if (GameState)ScreenWidget = Cast<UUserWidget_ScreenData>(GameState->GetScreenWidget());
-	
+	RacingController = Cast< APlayerController_Racing>(GetController());
 }
-
 void AMyCar::Pause()
 {
 	if (!IsValid(ScreenWidget))return;
 	ScreenWidget->Pause();
 }
-
 // Called every frame
 void AMyCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
-
 // Called to bind functionality to input
 void AMyCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -95,18 +89,50 @@ void AMyCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveForward",this,&AMyCar::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight",this,&AMyCar::MoveRight);
 }
-
-
 void AMyCar::MoveForward(float Value)
 {
 	//if (Value == 0)return;
 	//GEngine->AddOnScreenDebugMessage(1,0.2,FColor::Red,FString("Car: MoveForward input taken."));
 	GetVehicleMovementComponent()->SetThrottleInput(Value);
 }
-
 void AMyCar::MoveRight(float Value)
 {
 	//if (Value == 0)return;
 	//GEngine->AddOnScreenDebugMessage(1, 0.2, FColor::Red, FString("Car: MoveRight input taken."));
 	GetVehicleMovementComponent()->SetSteeringInput(Value);
+}
+
+bool AMyCar::ChangePoints(int8 Diference)
+{
+	if (!HasLocalNetOwner())return false;
+	APlayerState_Racing* LPlayerState= GetPlayerState<APlayerState_Racing>();
+	if (LPlayerState)LPlayerState->ChangePoints(Diference);
+	else return false;
+	return true;
+	if (!HasLocalNetOwner())return false;
+	RacingController->ChangePoints(Diference);
+	return true;
+	if (HasAuthority())Multi_ChangePoints(RacingController,Diference);
+	else Server_ChangePoints(RacingController,Diference);
+	return true;
+	UE_LOG(LogTemp, Warning, TEXT("Car: Calling game state to change points."));
+	if (GameState) GameState->IncreasePointsOfPayer(Cast< APlayerController_Racing>(GetController()), 1);
+	else UE_LOG(LogTemp, Warning, TEXT("Car: Cant call game state - empty ponter."));
+	return true;
+}
+
+void AMyCar::Server_ChangePoints_Implementation(APlayerController_Racing* PlayerController, int8 Diference)
+{
+	Multi_ChangePoints(PlayerController, Diference);
+}
+
+void AMyCar::Multi_ChangePoints_Implementation(APlayerController_Racing* PlayerController, int8 Diference)
+{
+	if (!IsValid(GameState)){
+		UE_LOG(LogTemp, Warning, TEXT("Car: Cant call game state - empty ponter."));
+		return;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Car: NetMulticast changing points."));
+	GameState->ChangePlayersPoints(PlayerController, Diference);
+	
 }

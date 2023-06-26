@@ -31,14 +31,19 @@ void ARacingLoopPoint::BodyStartOverap(UPrimitiveComponent* OverlapedComponent, 
 	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool FromSweep, const FHitResult& HitResut)
 {
 	if (!Mesh->IsVisible())return;
-	UE_LOG(LogTemp,Warning,TEXT("Loop Point: overlaped by %s."),*OtherActor->GetName());
+	//UE_LOG(LogTemp,Warning,TEXT("Loop Point: overlaped by %s."),*OtherActor->GetName());
 	AMyCar* Car = Cast<AMyCar>(OtherActor);
 	if (IsValid(Car) && IsValid(NextPoint)) {
-		if(!Car->HasAuthority())return;
-		UE_LOG(LogTemp,Warning,TEXT("Loop Point: Owner of car - %d."),Car->HasAuthority());
+		//if(!Car->HasAuthority())return;
+
+		if (!Car->ChangePoints(1))return;
+		FString ControllerName = "no controller";
+		AController* TempContr = Car->GetController();
+		if (IsValid(TempContr)) { ControllerName = TempContr->GetName(); };
+		/*UE_LOG(LogTemp,Warning,TEXT("Loop Point(%d): overlaped %s, has authority - %d, controller -%s."),
+			HasAuthority(),*Car->GetName(),Car->HasAuthority(), *ControllerName);*/
 		Mesh->SetVisibility(false);
 		NextPoint->Mesh->SetVisibility(true);
-		Car->ChangePoints(1);
 	}
 }
 
@@ -46,6 +51,5 @@ void ARacingLoopPoint::BodyStartOverap(UPrimitiveComponent* OverlapedComponent, 
 void ARacingLoopPoint::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

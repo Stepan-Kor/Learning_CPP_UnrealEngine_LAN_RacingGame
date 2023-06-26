@@ -23,7 +23,11 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly) UCameraComponent* BackCamera;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly) UCameraComponent* FrontCamera;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly) UTextRenderComponent* SpeedPanelText;
-	void ChangePoints(int8 Diference);
+	bool ChangePoints(int8 Diference);
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -33,11 +37,9 @@ protected:
 	class AGameState_Playing* GameState;
 	void MoveForward(float Value);
 	void MoveRight(float Value);
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	UFUNCTION(Server,Reliable) void Server_ChangePoints(APlayerController_Racing* PlayerController, int8 Diference);
+	void Server_ChangePoints_Implementation(APlayerController_Racing* PlayerController, int8 Diference);
+	UFUNCTION(NetMulticast,Reliable) void Multi_ChangePoints(APlayerController_Racing* PlayerController, int8 Diference);
+	void Multi_ChangePoints_Implementation(APlayerController_Racing* PlayerController,int8 Diference);
+	class APlayerController_Racing* RacingController;
 };

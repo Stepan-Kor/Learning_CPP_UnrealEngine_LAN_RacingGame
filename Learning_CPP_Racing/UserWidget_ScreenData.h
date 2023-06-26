@@ -5,12 +5,15 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
+#include "GameState_Playing.h"
 #include "Components/VerticalBox.h"
 #include "UserWidget_ScreenData.generated.h"
 
 /**
  * 
  */
+struct FJustPointsMap;
+
 UCLASS()
 class LEARNING_CPP_RACING_API UUserWidget_ScreenData : public UUserWidget
 {
@@ -20,11 +23,16 @@ public:
 	UPROPERTY(meta = (BindWidget))UButton* Button_Exit;
 	UPROPERTY(meta = (BindWidget))UButton* Button_BackToMenu;
 	UPROPERTY(meta = (BindWidget))UVerticalBox* VerticalBox_Buttons;
+	UPROPERTY(meta = (BindWidget))UVerticalBox* VerticalBox_Points;
 	void Pause();
+	UFUNCTION() void UpdatePointsVisualization(APlayerController_Racing* Controller, int8 NewValue);
+	UPROPERTY(EditDefaultsOnly)TSubclassOf<class UUserWidget_PlayersPoints> PointsWidgetClass;
 protected:
 	virtual bool Initialize() override;
 	UFUNCTION() void Resume();
 	APlayerController* PlayerController;
+	APlayerState_Racing* PlayerState;
+	class AGameState_Playing* GameState;
 	UFUNCTION() void BackToMenu();
 	UFUNCTION() void QuitGame();
 };
