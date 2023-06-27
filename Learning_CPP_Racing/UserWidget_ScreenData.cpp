@@ -3,6 +3,7 @@
 
 #include "UserWidget_ScreenData.h"
 #include "UserWidget_PlayersPoints.h"
+#include "PlayerController_Racing.h"
 #include "PlayerState_Racing.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -12,22 +13,44 @@ bool UUserWidget_ScreenData::Initialize()
 	Super::Initialize();
 	if (Button_Resume)Button_Resume->OnClicked.AddDynamic(this,&UUserWidget_ScreenData::Resume);
 	if (Button_Exit)Button_Exit->OnClicked.AddDynamic(this,&UUserWidget_ScreenData::QuitGame);
-	PlayerController = GetWorld()->GetFirstPlayerController();
+	PlayerController = Cast<APlayerController_Racing>(GetWorld()->GetFirstPlayerController());
 	if (PlayerController)PlayerState=PlayerController->GetPlayerState<APlayerState_Racing>();
+	/*
 	if (PlayerState)PlayerState->DelegateList_UpdatedPoints.AddUObject
-		(this,);
-	GameState = Cast<AGameState_Playing>(GetWorld()->GetGameState());/*
+		(this,&UUserWidget_ScreenData::PlayerStatePointsUpdated);*/
+	GameState = Cast<AGameState_Playing>(GetWorld()->GetGameState());
 	if (GameState)GameState->DelegateList_UpdatePoints.AddUObject
-		(this,&UUserWidget_ScreenData::UpdatePointsVisualization);*/
+		(this,&UUserWidget_ScreenData::UpdatePointsVisualization);
+	FTimerHandle UnusedHandle;
+	GetWorld()->GetTimerManager().SetTimer(UnusedHandle,this,
+		&UUserWidget_ScreenData::RefreshPointsFromGameState,1);
 	return true;
 }
 
+void UUserWidget_ScreenData::PlayerStatePointsUpdated(int8 NewValue)
+{
+
+}
 void UUserWidget_ScreenData::Resume()
 {
 	if (!IsValid(PlayerController))return;
 	PlayerController->SetInputMode(FInputModeGameOnly());
 	PlayerController->SetShowMouseCursor(false);
 	VerticalBox_Buttons->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UUserWidget_ScreenData::RefreshPointsFromGameState()
+{
+	if (!GameState || !VerticalBox_Buttons)return;
+	VerticalBox_Buttons->ClearChildren();
+	UUserWidget_PlayersPoints* TempPoints;
+	for (auto Pair : GameState->Map_PlayersPoints.PlayersPoints) {
+
+		TempPoints = CreateWidget<UUserWidget_PlayersPoints>(PlayerController, PointsWidgetClass);
+		TempPoints->InitializePointsWidget(Pair.Key, Pair.Value);
+		VerticalBox_Points->AddChild(TempPoints);
+	}
+	
 }
 
 void UUserWidget_ScreenData::BackToMenu()
@@ -48,9 +71,9 @@ void UUserWidget_ScreenData::Pause()
 	PlayerController->SetShowMouseCursor(true);
 }
 
-void UUserWidget_ScreenData::UpdatePointsVisualization(APlayerController_Racing* Controller, int8 NewValue)
+void UUserWidget_ScreenData::UpdatePointsVisualization(int32 PlayerID, int8 NewValue)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Screen widget: update points delegat was trigered."));
+	UE_LOG(LogTemp, Warning, TEXT("Screen widget: update points delegat was trigered."));
 	if (!IsValid(VerticalBox_Points)){
 		UE_LOG(LogTemp, Warning, TEXT("Screen widget: no widget points box found."));
 		return;
@@ -60,7 +83,7 @@ void UUserWidget_ScreenData::UpdatePointsVisualization(APlayerController_Racing*
 	for (UWidget* Child : VerticalBox_Points->GetAllChildren()) {
 		CastedChild = Cast<UUserWidget_PlayersPoints>(Child);
 		if (!IsValid(CastedChild))continue;
-		if (!(CastedChild->PlayerController == Controller))continue;
+		if (CastedChild->PlayerID != PlayerID)continue;
 		bFoundWidget = true;
 		CastedChild->UpdateText(NewValue);
 	};
@@ -71,6 +94,6 @@ void UUserWidget_ScreenData::UpdatePointsVisualization(APlayerController_Racing*
 	}
 	UUserWidget_PlayersPoints* TempPoints =
 		CreateWidget<UUserWidget_PlayersPoints>(PlayerController, PointsWidgetClass);
-	TempPoints->InitializePointsWidget(Controller, NewValue);
+	TempPoints->InitializePointsWidget(PlayerID, NewValue);
 	VerticalBox_Points->AddChild(TempPoints);
 }

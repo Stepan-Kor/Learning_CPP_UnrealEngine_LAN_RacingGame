@@ -23,8 +23,11 @@ protected:
 	bool SessionsSearchInProgress = false;
 	bool ConectingToSessionInProcess = false;
 	IOnlineSessionPtr SessionInterface;
-
 public:
+	UFUNCTION(Server, Reliable)void Server_SomeTestFunction();
+	void Server_SomeTestFunction_Implementation();
+	UFUNCTION(NetMultiCast, Reliable)void Multi_SomeTestFunction();
+	void Multi_SomeTestFunction_Implementation();
 	virtual void Init()override;
 	bool CreateOnlineSession(FName SessionName,FName HostName ="");
 	UFUNCTION()void SessionCreationFinished(FName SessionName,bool Result);

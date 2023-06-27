@@ -3,6 +3,19 @@
 
 #include "MyGameInstance.h"
 
+
+void UMyGameInstance::Server_SomeTestFunction_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Game Instance: test server function called."));
+	Multi_SomeTestFunction();
+	//GetWorld()->GetAuthGameMode();
+}
+
+void UMyGameInstance::Multi_SomeTestFunction_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Game Instance: test net multi cast function called."));
+}
+
 void UMyGameInstance::Init()
 {
 	Super::Init();
@@ -74,12 +87,15 @@ bool UMyGameInstance::JoinOnlineSession(FName SessionName, FOnlineSessionSearchR
 
 	ConectingToSessionInProcess = SessionInterface->JoinSession(1, SessionName, DesiredSession);
 	if (ConectingToSessionInProcess) { UE_LOG(LogTemp, Warning, TEXT("Game Instance: start joining session.")); }
-	else  UE_LOG(LogTemp, Warning, TEXT("Game Instance: start joining session failed.")); 
+	else  UE_LOG(LogTemp, Warning, TEXT("Game Instance: start joining session failed."));
+	
 	return ConectingToSessionInProcess;
 }
 
 void UMyGameInstance::JoinOnlineSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type ResultType)
 {
+	UE_LOG(LogTemp, Error, TEXT("Game Instance: calling server test function."));
+	Server_SomeTestFunction();
 	ConectingToSessionInProcess = false;
 	if (ResultType != EOnJoinSessionCompleteResult::AlreadyInSession &&
 		ResultType != EOnJoinSessionCompleteResult::Success) {

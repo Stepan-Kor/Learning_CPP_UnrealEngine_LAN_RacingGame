@@ -22,7 +22,7 @@ ARacingLoopPoint::ARacingLoopPoint ()
 void ARacingLoopPoint::BeginPlay()
 {
 	Super::BeginPlay();
-	Mesh->OnComponentBeginOverlap.AddDynamic(this, &ARacingLoopPoint::BodyStartOverap);
+	if(Mesh)Mesh->OnComponentBeginOverlap.AddDynamic(this, &ARacingLoopPoint::BodyStartOverap);
 	if (!bFinishPoint)Mesh->SetVisibility(false);
 	GameState = Cast<AGameState_Playing >(UGameplayStatics::GetGameState(GetWorld()));
 }
@@ -33,18 +33,18 @@ void ARacingLoopPoint::BodyStartOverap(UPrimitiveComponent* OverlapedComponent, 
 	if (!Mesh->IsVisible())return;
 	//UE_LOG(LogTemp,Warning,TEXT("Loop Point: overlaped by %s."),*OtherActor->GetName());
 	AMyCar* Car = Cast<AMyCar>(OtherActor);
-	if (IsValid(Car) && IsValid(NextPoint)) {
-		//if(!Car->HasAuthority())return;
+	if (!IsValid(Car) || !IsValid(NextPoint)) return;
+	//if(!Car->HasAuthority())return;
 
-		if (!Car->ChangePoints(1))return;
-		FString ControllerName = "no controller";
-		AController* TempContr = Car->GetController();
-		if (IsValid(TempContr)) { ControllerName = TempContr->GetName(); };
-		/*UE_LOG(LogTemp,Warning,TEXT("Loop Point(%d): overlaped %s, has authority - %d, controller -%s."),
-			HasAuthority(),*Car->GetName(),Car->HasAuthority(), *ControllerName);*/
-		Mesh->SetVisibility(false);
-		NextPoint->Mesh->SetVisibility(true);
-	}
+	if (!Car->ChangePoints(1))return;
+	FString ControllerName = "no controller";
+	AController* TempContr = Car->GetController();
+	if (IsValid(TempContr)) { ControllerName = TempContr->GetName(); };
+	/*UE_LOG(LogTemp,Warning,TEXT("Loop Point(%d): overlaped %s, has authority - %d, controller -%s."),
+		HasAuthority(),*Car->GetName(),Car->HasAuthority(), *ControllerName);*/
+	Mesh->SetVisibility(false);
+	NextPoint->Mesh->SetVisibility(true);
+	
 }
 
 // Called every frame

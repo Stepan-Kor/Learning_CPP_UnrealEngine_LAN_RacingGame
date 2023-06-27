@@ -6,22 +6,17 @@
 void UUserWidget_PlayersPoints::UpdateText(int8 NewPoints)
 {
 	if (!IsValid(TextBlock_NameAndPoints))return;
-	//FString TempString=PointsStruct.PlayersPoints.
-	//TextBlock_NameAndPoints->SetText(NewText);
-	FString TempString{};
-	TempString.Append(PlayerController->GetName());
-	TempString.Append("\t");
+	FString TempString{ "Player(" };
+	TempString.Append(FString::FromInt(PlayerID));
+	TempString.Append(")\t points: ");
 	TempString.Append(FString::FromInt(NewPoints));
+	TempString.Append(".");
 	TextBlock_NameAndPoints->SetText(FText::FromString(TempString));
 }
 
-void UUserWidget_PlayersPoints::InitializePointsWidget(APlayerController_Racing* Controller,int8 CurrentPoints)
+void UUserWidget_PlayersPoints::InitializePointsWidget(int32 LPlayerID,int8 CurrentPoints)
 {
-	PlayerController = Controller;
-	if (!Controller || !IsValid(TextBlock_NameAndPoints))return;
-	FString TempString{};
-	TempString.Append(Controller->GetName());
-	TempString.Append("\t");
-	TempString.Append(FString::FromInt(CurrentPoints));
-	TextBlock_NameAndPoints->SetText(FText::FromString(TempString));
+	//PlayerController = Controller;
+	PlayerID = LPlayerID;
+	UpdateText(CurrentPoints);
 }

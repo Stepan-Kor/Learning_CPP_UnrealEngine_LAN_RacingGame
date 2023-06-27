@@ -20,8 +20,12 @@ public:
 	FDelegateTypePointsUpdated DelegateList_UpdatedPoints;
 protected:
 	int8 Points{0};
+	class AGameState_Playing* GameState;
+	class APlayerController_Racing* PController;
 	UFUNCTION(Server,Reliable)void Server_ChangePoints(int8 Diference);
 	void Server_ChangePoints_Implementation(int8 Diference);
 	UFUNCTION(NetMultiCast,Reliable)void Multi_ChangePoints(int8 NewValue);
 	void Multi_ChangePoints_Implementation(int8 NewValue);
+	virtual void BeginPlay()override;
+	void PrintInfo();
 };

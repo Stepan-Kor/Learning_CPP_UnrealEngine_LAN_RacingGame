@@ -25,14 +25,16 @@ public:
 	UPROPERTY(meta = (BindWidget))UVerticalBox* VerticalBox_Buttons;
 	UPROPERTY(meta = (BindWidget))UVerticalBox* VerticalBox_Points;
 	void Pause();
-	UFUNCTION() void UpdatePointsVisualization(APlayerController_Racing* Controller, int8 NewValue);
+	UFUNCTION() void UpdatePointsVisualization(int32 PlayerID, int8 NewValue);
 	UPROPERTY(EditDefaultsOnly)TSubclassOf<class UUserWidget_PlayersPoints> PointsWidgetClass;
+	UFUNCTION() void PlayerStatePointsUpdated(int8 NewValue);
 protected:
 	virtual bool Initialize() override;
 	UFUNCTION() void Resume();
-	APlayerController* PlayerController;
-	APlayerState_Racing* PlayerState;
+	class APlayerController_Racing* PlayerController;
+	class APlayerState_Racing* PlayerState;
 	class AGameState_Playing* GameState;
 	UFUNCTION() void BackToMenu();
 	UFUNCTION() void QuitGame();
+	void RefreshPointsFromGameState();
 };

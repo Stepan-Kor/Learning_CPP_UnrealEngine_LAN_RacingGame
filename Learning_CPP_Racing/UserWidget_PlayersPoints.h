@@ -20,5 +20,6 @@ protected:
 public:
 	void UpdateText(int8 NewPoints);
 	APlayerController_Racing* PlayerController;
-	void InitializePointsWidget(APlayerController_Racing* Controller, int8 CurrentPoints);
+	int32 PlayerID;
+	void InitializePointsWidget(int32 LPlayerID, int8 CurrentPoints);
 };

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Kismet/GameplayStatics.h"
 #include "GameModeBase_MainMenu.h"
+#include "Kismet/GameplayStatics.h"
 
 void AGameModeBase_MainMenu::BeginPlay()
 {

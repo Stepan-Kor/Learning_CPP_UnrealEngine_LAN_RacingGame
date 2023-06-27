@@ -7,6 +7,7 @@
 #include "PlayerController_Racing.h"
 #include "Learning_CPP_RacingWheelFront.h"
 #include "Learning_CPP_RacingWheelRear.h"
+#include "MyGameInstance.h"
 #include "WheeledVehicleMovementComponent4w.h"
 #include "PlayerState_Racing.h"
 #include "Kismet/GameplayStatics.h"
@@ -69,6 +70,7 @@ void AMyCar::BeginPlay()
 	GameState=Cast<AGameState_Playing >(UGameplayStatics::GetGameState(GetWorld()));
 	if (GameState)ScreenWidget = Cast<UUserWidget_ScreenData>(GameState->GetScreenWidget());
 	RacingController = Cast< APlayerController_Racing>(GetController());
+	ChangePoints(0);
 }
 void AMyCar::Pause()
 {
@@ -105,19 +107,10 @@ void AMyCar::MoveRight(float Value)
 bool AMyCar::ChangePoints(int8 Diference)
 {
 	if (!HasLocalNetOwner())return false;
+	Cast<UMyGameInstance>(GetGameInstance())->Server_SomeTestFunction();
 	APlayerState_Racing* LPlayerState= GetPlayerState<APlayerState_Racing>();
 	if (LPlayerState)LPlayerState->ChangePoints(Diference);
 	else return false;
-	return true;
-	if (!HasLocalNetOwner())return false;
-	RacingController->ChangePoints(Diference);
-	return true;
-	if (HasAuthority())Multi_ChangePoints(RacingController,Diference);
-	else Server_ChangePoints(RacingController,Diference);
-	return true;
-	UE_LOG(LogTemp, Warning, TEXT("Car: Calling game state to change points."));
-	if (GameState) GameState->IncreasePointsOfPayer(Cast< APlayerController_Racing>(GetController()), 1);
-	else UE_LOG(LogTemp, Warning, TEXT("Car: Cant call game state - empty ponter."));
 	return true;
 }
 
@@ -133,6 +126,6 @@ void AMyCar::Multi_ChangePoints_Implementation(APlayerController_Racing* PlayerC
 		return;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Car: NetMulticast changing points."));
-	GameState->ChangePlayersPoints(PlayerController, Diference);
+	//GameState->ChangePlayersPoints(PlayerController, Diference);
 	
 }
