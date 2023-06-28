@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "WheeledVehicle.h"
+#include "UserWidget_ScreenData.h"
 #include "Components/TextRenderComponent.h"
 #include "MyCar.generated.h"
 
@@ -23,17 +24,17 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly) UCameraComponent* BackCamera;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly) UCameraComponent* FrontCamera;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly) UTextRenderComponent* SpeedPanelText;
-	bool ChangePoints(int8 Diference);
+	bool ChangePoints(int8 Diference=0);
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	UUserWidget_ScreenData* ScreenWidget;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void Pause();
-	class UUserWidget_ScreenData* ScreenWidget;
 	class AGameState_Playing* GameState;
 	void MoveForward(float Value);
 	void MoveRight(float Value);

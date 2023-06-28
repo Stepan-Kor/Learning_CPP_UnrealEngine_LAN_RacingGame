@@ -2,7 +2,6 @@
 
 
 #include "MyCar.h"
-#include "UserWidget_ScreenData.h"
 #include "GameState_Playing.h"
 #include "PlayerController_Racing.h"
 #include "Learning_CPP_RacingWheelFront.h"
@@ -70,7 +69,7 @@ void AMyCar::BeginPlay()
 	GameState=Cast<AGameState_Playing >(UGameplayStatics::GetGameState(GetWorld()));
 	if (GameState)ScreenWidget = Cast<UUserWidget_ScreenData>(GameState->GetScreenWidget());
 	RacingController = Cast< APlayerController_Racing>(GetController());
-	ChangePoints(0);
+	//if (HasLocalNetOwner())UE_LOG(LogTemp,Warning,TEXT("Car: begin play change points %d."),ChangePoints(0));
 }
 void AMyCar::Pause()
 {
@@ -110,7 +109,9 @@ bool AMyCar::ChangePoints(int8 Diference)
 	Cast<UMyGameInstance>(GetGameInstance())->Server_SomeTestFunction();
 	APlayerState_Racing* LPlayerState= GetPlayerState<APlayerState_Racing>();
 	if (LPlayerState)LPlayerState->ChangePoints(Diference);
-	else return false;
+	else { 
+		UE_LOG(LogTemp, Warning, TEXT("Car: cant get player state."));
+		return false; }
 	return true;
 }
 

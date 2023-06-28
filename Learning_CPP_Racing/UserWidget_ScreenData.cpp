@@ -11,19 +11,23 @@
 bool UUserWidget_ScreenData::Initialize()
 {
 	Super::Initialize();
-	if (Button_Resume)Button_Resume->OnClicked.AddDynamic(this,&UUserWidget_ScreenData::Resume);
-	if (Button_Exit)Button_Exit->OnClicked.AddDynamic(this,&UUserWidget_ScreenData::QuitGame);
+	if (Button_Resume)Button_Resume->OnClicked.AddDynamic(this, &UUserWidget_ScreenData::Resume);
+	if (Button_Exit)Button_Exit->OnClicked.AddDynamic(this, &UUserWidget_ScreenData::QuitGame);
 	PlayerController = Cast<APlayerController_Racing>(GetWorld()->GetFirstPlayerController());
-	if (PlayerController)PlayerState=PlayerController->GetPlayerState<APlayerState_Racing>();
-	/*
+	if (PlayerController)PlayerState = PlayerController->GetPlayerState<APlayerState_Racing>();
+
 	if (PlayerState)PlayerState->DelegateList_UpdatedPoints.AddUObject
-		(this,&UUserWidget_ScreenData::PlayerStatePointsUpdated);*/
+	(this, &UUserWidget_ScreenData::PlayerStatePointsUpdated);
 	GameState = Cast<AGameState_Playing>(GetWorld()->GetGameState());
 	if (GameState)GameState->DelegateList_UpdatePoints.AddUObject
-		(this,&UUserWidget_ScreenData::UpdatePointsVisualization);
+	(this, &UUserWidget_ScreenData::UpdatePointsVisualization);
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Screen widget: cant attach self to gamestate points update."));
+	}
+	
 	FTimerHandle UnusedHandle;
 	GetWorld()->GetTimerManager().SetTimer(UnusedHandle,this,
-		&UUserWidget_ScreenData::RefreshPointsFromGameState,1);
+		&UUserWidget_ScreenData::RefreshPointsFromGameState,3);
 	return true;
 }
 
@@ -41,11 +45,15 @@ void UUserWidget_ScreenData::Resume()
 
 void UUserWidget_ScreenData::RefreshPointsFromGameState()
 {
+	
 	if (!GameState || !VerticalBox_Buttons)return;
 	VerticalBox_Buttons->ClearChildren();
 	UUserWidget_PlayersPoints* TempPoints;
-	for (auto Pair : GameState->Map_PlayersPoints.PlayersPoints) {
+	UE_LOG(LogTemp, Warning, TEXT("Screen widget: players registred in game state %i."),
+		GameState->GetSavedPoints()->PlayersPoints.Num());
+	for (auto Pair : GameState->GetSavedPoints()->PlayersPoints) {
 
+		UE_LOG(LogTemp, Warning, TEXT("Screen widget: found saved points %i - %i."), Pair.Key, Pair.Value);
 		TempPoints = CreateWidget<UUserWidget_PlayersPoints>(PlayerController, PointsWidgetClass);
 		TempPoints->InitializePointsWidget(Pair.Key, Pair.Value);
 		VerticalBox_Points->AddChild(TempPoints);

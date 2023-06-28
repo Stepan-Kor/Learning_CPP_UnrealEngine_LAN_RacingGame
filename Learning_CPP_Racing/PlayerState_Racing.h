@@ -16,6 +16,7 @@ class LEARNING_CPP_RACING_API APlayerState_Racing : public APlayerState
 {
 	GENERATED_BODY()
 public:
+	APlayerState_Racing();
 	void ChangePoints(int8 Diference);
 	FDelegateTypePointsUpdated DelegateList_UpdatedPoints;
 protected:

@@ -28,6 +28,7 @@ public:
 	UFUNCTION() void UpdatePointsVisualization(int32 PlayerID, int8 NewValue);
 	UPROPERTY(EditDefaultsOnly)TSubclassOf<class UUserWidget_PlayersPoints> PointsWidgetClass;
 	UFUNCTION() void PlayerStatePointsUpdated(int8 NewValue);
+	void RefreshPointsFromGameState();
 protected:
 	virtual bool Initialize() override;
 	UFUNCTION() void Resume();
@@ -36,5 +37,4 @@ protected:
 	class AGameState_Playing* GameState;
 	UFUNCTION() void BackToMenu();
 	UFUNCTION() void QuitGame();
-	void RefreshPointsFromGameState();
 };

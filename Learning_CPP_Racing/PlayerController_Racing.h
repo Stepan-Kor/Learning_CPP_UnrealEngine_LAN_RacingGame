@@ -21,6 +21,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	class AGameState_Playing* GameState;
+	class APlayerState_Racing* PlayerStateRacing;
 	UFUNCTION(Server, Reliable)void Server_ChangePoints(int8 NewValue);
 	void Server_ChangePoints_Implementation(int8 NewValue);
 	UFUNCTION(NetMultiCast, Reliable)void Multi_ChangePoints(int8 NewValue);
