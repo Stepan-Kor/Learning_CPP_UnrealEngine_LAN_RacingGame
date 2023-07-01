@@ -18,7 +18,10 @@ public:
 	void UpdatePointsVisualisation();
 	int8 Points{ 0 };
 	class AGameState_Playing* GetGameState();
+	class UUserWidget_ScreenData* GetWidgetScreenData();
+	UPROPERTY (EditDefaultsOnly) TSubclassOf <class UUserWidget_ScreenData> WidgetScreenDataClass;
 protected:
+	class UUserWidget_ScreenData* WidgetScreenData;
 	virtual void BeginPlay() override;
 	class AGameState_Playing* GameState;
 	class APlayerState_Racing* PlayerStateRacing;

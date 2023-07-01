@@ -6,14 +6,14 @@
 
 void UMyGameInstance::Server_SomeTestFunction_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Game Instance: test server function called."));
+	//UE_LOG(LogTemp, Warning, TEXT("Game Instance: test server function called."));
 	Multi_SomeTestFunction();
 	//GetWorld()->GetAuthGameMode();
 }
 
 void UMyGameInstance::Multi_SomeTestFunction_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Game Instance: test net multi cast function called."));
+	//UE_LOG(LogTemp, Warning, TEXT("Game Instance: test net multi cast function called."));
 }
 
 void UMyGameInstance::Init()
@@ -56,8 +56,8 @@ void UMyGameInstance::SessionCreationFinished(FName SessionName, bool Result)
 {
 	SessionInCreation = false;
 	if (Result == false)return;
-	UE_LOG(LogTemp,Warning,TEXT("Game Instance: SessionCreation was successfull %s."),
-		*SessionName.ToString());
+	/*UE_LOG(LogTemp,Warning,TEXT("Game Instance: SessionCreation was successfull %s."),
+		*SessionName.ToString());*/
 	GetWorld()->ServerTravel("/Game/VehicleExampleMap?Listen");
 }
 
@@ -85,16 +85,16 @@ bool UMyGameInstance::JoinOnlineSession(FName SessionName, FOnlineSessionSearchR
 	if (ConectingToSessionInProcess) { UE_LOG(LogTemp, Warning, TEXT("Game Instance: failed to start joining.ConectingToSessionInProcess.")); return false; }
 	if (SessionsSearchInProgress) { UE_LOG(LogTemp, Warning, TEXT("Game Instance: failed to start joining.SessionsSearchInProgress.")); return false; }
 
-	ConectingToSessionInProcess = SessionInterface->JoinSession(1, SessionName, DesiredSession);
+	ConectingToSessionInProcess = SessionInterface->JoinSession(1, SessionName, DesiredSession);/*
 	if (ConectingToSessionInProcess) { UE_LOG(LogTemp, Warning, TEXT("Game Instance: start joining session.")); }
 	else  UE_LOG(LogTemp, Warning, TEXT("Game Instance: start joining session failed."));
-	
+	*/
 	return ConectingToSessionInProcess;
 }
 
 void UMyGameInstance::JoinOnlineSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type ResultType)
 {
-	UE_LOG(LogTemp, Error, TEXT("Game Instance: calling server test function."));
+	//UE_LOG(LogTemp, Error, TEXT("Game Instance: calling server test function."));
 	Server_SomeTestFunction();
 	ConectingToSessionInProcess = false;
 	if (ResultType != EOnJoinSessionCompleteResult::AlreadyInSession &&

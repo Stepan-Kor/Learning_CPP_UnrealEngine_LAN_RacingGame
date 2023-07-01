@@ -4,6 +4,7 @@
 #include "PlayerController_Racing.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameState_Playing.h"
+#include "UserWidget_ScreenData.h"
 #include "MyCar.h"
 #include "PlayerState_Racing.h"
 
@@ -18,23 +19,42 @@ AGameState_Playing* APlayerController_Racing::GetGameState()
 	return GameState = Cast<AGameState_Playing>(GetWorld()->GetGameState());
 }
 
+UUserWidget_ScreenData* APlayerController_Racing::GetWidgetScreenData()
+{
+	if (WidgetScreenData)return WidgetScreenData;
+	WidgetScreenData = Cast<UUserWidget_ScreenData>
+			(CreateWidget(GetWorld(), WidgetScreenDataClass, FName("Screen Widget")));
+	if (WidgetScreenData) { 
+		WidgetScreenData->AddToViewport(); 
+		WidgetScreenData->SetPlayerState(PlayerStateRacing);
+	}
+	return WidgetScreenData;
+}
+
 void APlayerController_Racing::BeginPlay()
 {
 	Super::BeginPlay();
 	if (IsLocalController()) { if (GetGameState())GetGameState()->SetOwner(this); }
 	SetInputMode(FInputModeGameOnly());
+	GetWidgetScreenData();
+	//need to be deleted later
 	/*
+	if (GetGameState() && false) { 
+		if (!GameState->HasAuthority()) {
+			GameState->SetOwner(this);
+		}
+	}*/
 	TArray <AActor*> Array_Controllers;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(),APlayerController::StaticClass(), Array_Controllers);
 	UE_LOG(LogTemp, Warning, TEXT("Controller(%s): authority %i,         total controllers %i."),
 		*GetName(), GetLocalRole(), Array_Controllers.Num());
 	PlayerStateRacing = GetPlayerState<APlayerState_Racing>();
-	if (PlayerStateRacing) {
+	if (PlayerStateRacing) {/*
 		AMyCar* TempCar = GetPawn<AMyCar>();
 		if (TempCar)TempCar->ChangePoints(0);
-		else UE_LOG(LogTemp, Warning, TEXT("Controller: car not exist."));
+		else UE_LOG(LogTemp, Warning, TEXT("Controller: car not exist."));*/
 	}
-	else UE_LOG(LogTemp, Warning, TEXT("Controller: player state not exist."));*/
+	else UE_LOG(LogTemp, Warning, TEXT("Controller: player state not exist."));
 }
 
 void APlayerController_Racing::ChangePoints(int8 Amount)
@@ -54,6 +74,6 @@ void APlayerController_Racing::Multi_ChangePoints_Implementation(int8 NewValue)
 	if (!GetGameState()) {
 		UE_LOG(LogTemp, Warning, TEXT("Controller( %s): net multicast empty gamestate pointer."), *GetName());
 		return; };
-	UE_LOG(LogTemp, Warning, TEXT("Controller( %s): net multicast points change."), *GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Controller( %s): net multicast points change."), *GetName());
 
 }

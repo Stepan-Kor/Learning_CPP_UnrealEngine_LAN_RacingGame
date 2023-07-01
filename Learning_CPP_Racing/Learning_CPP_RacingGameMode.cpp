@@ -11,11 +11,12 @@ ALearning_CPP_RacingGameMode::ALearning_CPP_RacingGameMode()
 {
 	DefaultPawnClass = ALearning_CPP_RacingPawn::StaticClass();
 	HUDClass = ALearning_CPP_RacingHud::StaticClass();
+	
 }
 
 void ALearning_CPP_RacingGameMode::RestartPlayer(AController* NewPlayer)
 {
-	UE_LOG(LogTemp,Warning,TEXT("GameMode: Custom Restart player called."));
+	//UE_LOG(LogTemp,Warning,TEXT("GameMode: Custom Restart player called."));
 	if (NewPlayer == nullptr || NewPlayer->IsPendingKillPending())
 	{
 		return;
@@ -35,13 +36,13 @@ void ALearning_CPP_RacingGameMode::RestartPlayer(AController* NewPlayer)
 			UE_LOG(LogGameMode, Warning, TEXT("RestartPlayer: Player start not found, using last start spot"));
 		}
 	}
-	UE_LOG(LogGameMode, Warning, TEXT("Game mode: controller to spawn valid %d"), IsValid(NewPlayer));
+	//UE_LOG(LogGameMode, Warning, TEXT("Game mode: controller to spawn valid %d"), IsValid(NewPlayer));
 	RestartPlayerAtPlayerStart(NewPlayer, StartSpot);
 }
 
 AActor* ALearning_CPP_RacingGameMode::FindStartingPointCustom()
 {
-	UE_LOG(LogGameMode, Warning, TEXT("Game mode: custom looking for start point."));
+	//UE_LOG(LogGameMode, Warning, TEXT("Game mode: custom looking for start point."));
 	if (!bSearchedStartPoints) {
 		//UKismetSystemLibrary
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), StartPoints);
@@ -51,7 +52,7 @@ AActor* ALearning_CPP_RacingGameMode::FindStartingPointCustom()
 	if (StartPointsAmount < 1)return nullptr;
 	StartPointCounter = (StartPointCounter + 1) % StartPointsAmount;
 
-	UE_LOG(LogGameMode, Warning, TEXT("Game mode: start points found %i. Used this %s")
-		, StartPointsAmount, *StartPoints[StartPointCounter]->GetName());
+	/*UE_LOG(LogGameMode, Warning, TEXT("Game mode: start points found %i. Used this %s")
+		, StartPointsAmount, *StartPoints[StartPointCounter]->GetName());*/
 	return StartPoints[StartPointCounter];
 }

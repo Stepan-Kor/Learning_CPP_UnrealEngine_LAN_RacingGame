@@ -22,6 +22,7 @@ public:
 protected:
 	int8 Points{0};
 	class AGameState_Playing* GameState;
+	class AGameState_Playing* GetGameState();
 	class APlayerController_Racing* PController;
 	UFUNCTION(Server,Reliable)void Server_ChangePoints(int8 Diference);
 	void Server_ChangePoints_Implementation(int8 Diference);

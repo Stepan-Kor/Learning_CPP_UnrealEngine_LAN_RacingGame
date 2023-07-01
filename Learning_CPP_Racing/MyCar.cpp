@@ -106,7 +106,7 @@ void AMyCar::MoveRight(float Value)
 bool AMyCar::ChangePoints(int8 Diference)
 {
 	if (!HasLocalNetOwner())return false;
-	Cast<UMyGameInstance>(GetGameInstance())->Server_SomeTestFunction();
+	//Cast<UMyGameInstance>(GetGameInstance())->Server_SomeTestFunction();
 	APlayerState_Racing* LPlayerState= GetPlayerState<APlayerState_Racing>();
 	if (LPlayerState)LPlayerState->ChangePoints(Diference);
 	else { 
@@ -126,7 +126,7 @@ void AMyCar::Multi_ChangePoints_Implementation(APlayerController_Racing* PlayerC
 		UE_LOG(LogTemp, Warning, TEXT("Car: Cant call game state - empty ponter."));
 		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Car: NetMulticast changing points."));
+	//(LogTemp, Warning, TEXT("Car: NetMulticast changing points."));
 	//GameState->ChangePlayersPoints(PlayerController, Diference);
 	
 }

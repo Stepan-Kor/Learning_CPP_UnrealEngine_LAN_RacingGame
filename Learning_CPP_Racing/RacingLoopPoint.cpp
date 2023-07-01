@@ -22,8 +22,10 @@ ARacingLoopPoint::ARacingLoopPoint ()
 void ARacingLoopPoint::BeginPlay()
 {
 	Super::BeginPlay();
-	if(Mesh)Mesh->OnComponentBeginOverlap.AddDynamic(this, &ARacingLoopPoint::BodyStartOverap);
-	if (!bFinishPoint)Mesh->SetVisibility(false);
+	if (Mesh) {
+		Mesh->OnComponentBeginOverlap.AddDynamic(this, &ARacingLoopPoint::BodyStartOverap);
+		if (!bFinishPoint)Mesh->SetVisibility(false);
+	}
 	GameState = Cast<AGameState_Playing >(UGameplayStatics::GetGameState(GetWorld()));
 }
 

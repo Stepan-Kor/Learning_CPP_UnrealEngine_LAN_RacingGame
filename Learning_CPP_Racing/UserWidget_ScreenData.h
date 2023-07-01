@@ -28,8 +28,10 @@ public:
 	UFUNCTION() void UpdatePointsVisualization(int32 PlayerID, int8 NewValue);
 	UPROPERTY(EditDefaultsOnly)TSubclassOf<class UUserWidget_PlayersPoints> PointsWidgetClass;
 	UFUNCTION() void PlayerStatePointsUpdated(int8 NewValue);
-	void RefreshPointsFromGameState();
+	UFUNCTION() void RefreshPointsFromGameState(const TArray <FJustPointsMap>& PointsList);
+	void SetPlayerState(APlayerState_Racing* State);
 protected:
+	FDelegateHandle Handle_PointsUpdate;
 	virtual bool Initialize() override;
 	UFUNCTION() void Resume();
 	class APlayerController_Racing* PlayerController;
