@@ -11,7 +11,6 @@ ALearning_CPP_RacingGameMode::ALearning_CPP_RacingGameMode()
 {
 	DefaultPawnClass = ALearning_CPP_RacingPawn::StaticClass();
 	HUDClass = ALearning_CPP_RacingHud::StaticClass();
-	
 }
 
 void ALearning_CPP_RacingGameMode::RestartPlayer(AController* NewPlayer)
@@ -38,6 +37,18 @@ void ALearning_CPP_RacingGameMode::RestartPlayer(AController* NewPlayer)
 	}
 	//UE_LOG(LogGameMode, Warning, TEXT("Game mode: controller to spawn valid %d"), IsValid(NewPlayer));
 	RestartPlayerAtPlayerStart(NewPlayer, StartSpot);
+}
+
+void ALearning_CPP_RacingGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+	//UE_LOG(LogTemp,Warning,TEXT("Game Mode: Player %s Post login."), *NewPlayer->GetName());
+}
+
+void ALearning_CPP_RacingGameMode::StartPlay()
+{
+	//UE_LOG(LogTemp, Error, TEXT("GameMode: START."));
+	Super::StartPlay();
 }
 
 AActor* ALearning_CPP_RacingGameMode::FindStartingPointCustom()

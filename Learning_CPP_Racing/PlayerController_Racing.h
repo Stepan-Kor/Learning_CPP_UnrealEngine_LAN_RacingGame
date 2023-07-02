@@ -20,10 +20,12 @@ public:
 	class AGameState_Playing* GetGameState();
 	class UUserWidget_ScreenData* GetWidgetScreenData();
 	UPROPERTY (EditDefaultsOnly) TSubclassOf <class UUserWidget_ScreenData> WidgetScreenDataClass;
+	bool SetPlayerStateRacing(class APlayerState_Racing* NewState);
 protected:
 	class UUserWidget_ScreenData* WidgetScreenData;
 	virtual void BeginPlay() override;
 	class AGameState_Playing* GameState;
+	class AMyCar* PawnCar;
 	class APlayerState_Racing* PlayerStateRacing;
 	UFUNCTION(Server, Reliable)void Server_ChangePoints(int8 NewValue);
 	void Server_ChangePoints_Implementation(int8 NewValue);

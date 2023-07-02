@@ -23,6 +23,8 @@ USTRUCT() struct FJustPointsMap {
 //typedef TMap<APlayerController_Racing*, int8> Pointsmap;
 DECLARE_MULTICAST_DELEGATE_OneParam
 	(FDelegateType_PointsUpdated, const TArray <FJustPointsMap>&);
+DECLARE_MULTICAST_DELEGATE_TwoParams
+	(FDelegateType_PlayersPointsUpdated, int32, int8);
 
 UCLASS()
 class LEARNING_CPP_RACING_API AGameState_Playing : public AGameStateBase
@@ -43,12 +45,14 @@ protected:
 	UFUNCTION(Server, Unreliable)void Server_TestCall();
 	void Server_TestCall_Implementation();
 public:
+	bool GetPlayerStateRacing(APlayerController_Racing* LPlayerController=nullptr,
+		APlayerState_Racing* LPlayerState=nullptr);
 	bool bPointsWasReplicated{false};
 	TArray<FJustPointsMap>* GetSavedPoints();
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 	FDelegateType_PointsUpdated DelegateList_UpdatePoints;
+	FDelegateType_PlayersPointsUpdated DelegateList_PlayersPointsUpdated;
 	UPROPERTY(EditDefaultsOnly)TSubclassOf<UUserWidget> ScreenWidgetClass;
-	UUserWidget* GetScreenWidget();
 	UFUNCTION(NetMultiCast, Reliable)void Multi_IncreasePointsOfPlayer(int32 PlayerID, int8 Amount = 0);
 	void Multi_IncreasePointsOfPlayer_Implementation(int32 PlayerID, int8 Amount=0);
 	UFUNCTION()void OnRep_PointsChanged();

@@ -9,6 +9,32 @@
 #include "PlayerState_Racing.h"
 
 
+void APlayerController_Racing::BeginPlay()
+{
+	//UE_LOG(LogTemp, Error, TEXT("PlayerContr: START."));
+	Super::BeginPlay();
+	if (!IsLocalController()) return;
+	SetInputMode(FInputModeGameOnly());
+	//GetWidgetScreenData();
+	//need to be deleted later
+	GetGameState();
+	PlayerStateRacing = GetPlayerState<APlayerState_Racing>();
+	if (PlayerStateRacing)PlayerStateRacing->SetOwner(this);
+	/*
+	TArray <AActor*> Array_Controllers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController::StaticClass(), Array_Controllers);
+	UE_LOG(LogTemp, Warning, TEXT("Controller(%s): authority %i,         total controllers %i."),
+		*GetName(), GetLocalRole(), Array_Controllers.Num());*/
+	/*
+	if (PlayerStateRacing) {
+		AMyCar* TempCar = GetPawn<AMyCar>();
+		if (TempCar)TempCar->ChangePoints(0);
+		else UE_LOG(LogTemp, Warning, TEXT("Controller: car not exist."));
+	}
+	else UE_LOG(LogTemp, Warning, TEXT("Controller: player state not exist."));*/
+	
+}
+
 void APlayerController_Racing::UpdatePointsVisualisation()
 {
 }
@@ -16,7 +42,13 @@ void APlayerController_Racing::UpdatePointsVisualisation()
 AGameState_Playing* APlayerController_Racing::GetGameState()
 {
 	if (GameState)return GameState;
-	return GameState = Cast<AGameState_Playing>(GetWorld()->GetGameState());
+	GameState = Cast<AGameState_Playing>(GetWorld()->GetGameState());
+	if (GameState) {
+		if (!GameState->HasAuthority()) {
+			GameState->SetOwner(this);
+		}
+	}
+	return GameState;
 }
 
 UUserWidget_ScreenData* APlayerController_Racing::GetWidgetScreenData()
@@ -27,34 +59,21 @@ UUserWidget_ScreenData* APlayerController_Racing::GetWidgetScreenData()
 	if (WidgetScreenData) { 
 		WidgetScreenData->AddToViewport(); 
 		WidgetScreenData->SetPlayerState(PlayerStateRacing);
+		PawnCar=GetPawn<AMyCar>();
+		if (PawnCar)PawnCar->ScreenWidget = WidgetScreenData;
 	}
 	return WidgetScreenData;
 }
 
-void APlayerController_Racing::BeginPlay()
+bool APlayerController_Racing::SetPlayerStateRacing(APlayerState_Racing* NewState)
 {
-	Super::BeginPlay();
-	if (IsLocalController()) { if (GetGameState())GetGameState()->SetOwner(this); }
-	SetInputMode(FInputModeGameOnly());
-	GetWidgetScreenData();
-	//need to be deleted later
-	/*
-	if (GetGameState() && false) { 
-		if (!GameState->HasAuthority()) {
-			GameState->SetOwner(this);
-		}
-	}*/
-	TArray <AActor*> Array_Controllers;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(),APlayerController::StaticClass(), Array_Controllers);
-	UE_LOG(LogTemp, Warning, TEXT("Controller(%s): authority %i,         total controllers %i."),
-		*GetName(), GetLocalRole(), Array_Controllers.Num());
-	PlayerStateRacing = GetPlayerState<APlayerState_Racing>();
-	if (PlayerStateRacing) {/*
-		AMyCar* TempCar = GetPawn<AMyCar>();
-		if (TempCar)TempCar->ChangePoints(0);
-		else UE_LOG(LogTemp, Warning, TEXT("Controller: car not exist."));*/
+	if (PlayerStateRacing)return false;
+	if (!IsValid(NewState)) {
+		UE_LOG(LogTemp, Warning, TEXT("Controller: Passed empty player state."));
+		return false;
 	}
-	else UE_LOG(LogTemp, Warning, TEXT("Controller: player state not exist."));
+	PlayerStateRacing = NewState;
+	return true;
 }
 
 void APlayerController_Racing::ChangePoints(int8 Amount)
@@ -72,7 +91,7 @@ void APlayerController_Racing::Server_ChangePoints_Implementation(int8 NewValue)
 void APlayerController_Racing::Multi_ChangePoints_Implementation(int8 NewValue)
 {
 	if (!GetGameState()) {
-		UE_LOG(LogTemp, Warning, TEXT("Controller( %s): net multicast empty gamestate pointer."), *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("Controller( %s): net multicast get empty gamestate pointer."), *GetName());
 		return; };
 	//UE_LOG(LogTemp, Warning, TEXT("Controller( %s): net multicast points change."), *GetName());
 

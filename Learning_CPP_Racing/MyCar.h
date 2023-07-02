@@ -30,6 +30,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	UUserWidget_ScreenData* ScreenWidget;
+	APlayerState_Racing* GetPlayerStateRacing();
 
 protected:
 	// Called when the game starts or when spawned
@@ -43,4 +44,5 @@ protected:
 	UFUNCTION(NetMulticast,Reliable) void Multi_ChangePoints(APlayerController_Racing* PlayerController, int8 Diference);
 	void Multi_ChangePoints_Implementation(APlayerController_Racing* PlayerController,int8 Diference);
 	class APlayerController_Racing* RacingController;
+	APlayerState_Racing* PlayerState;
 };

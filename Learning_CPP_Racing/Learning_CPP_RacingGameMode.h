@@ -11,6 +11,9 @@ class ALearning_CPP_RacingGameMode : public AGameModeBase
 public:
 	ALearning_CPP_RacingGameMode();
 	virtual void RestartPlayer(AController* NewPlayer)override;
+	virtual void PostLogin(APlayerController* NewPlayer)override;
+	virtual void StartPlay() override;
+
 protected:
 	int8 StartPointCounter{0};
 	int16 StartPointsAmount{0};

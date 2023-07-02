@@ -10,16 +10,18 @@
  * 
  */
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FDelegateTypePointsUpdated,int8);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FDelegateTypePointsUpdated,int32,int8);
 UCLASS()
 class LEARNING_CPP_RACING_API APlayerState_Racing : public APlayerState
 {
 	GENERATED_BODY()
 public:
 	APlayerState_Racing();
-	void ChangePoints(int8 Diference);
+	class APlayerController_Racing* GetControllerRacing();
+	void ChangePoints(int8 Diference=0);
 	FDelegateTypePointsUpdated DelegateList_UpdatedPoints;
 protected:
+	void CheckPoints();
 	int8 Points{0};
 	class AGameState_Playing* GameState;
 	class AGameState_Playing* GetGameState();

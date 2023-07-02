@@ -14,22 +14,18 @@ bool UUserWidget_ScreenData::Initialize()
 	if (Button_Resume)Button_Resume->OnClicked.AddDynamic(this, &UUserWidget_ScreenData::Resume);
 	if (Button_Exit)Button_Exit->OnClicked.AddDynamic(this, &UUserWidget_ScreenData::QuitGame);
 	PlayerController = Cast<APlayerController_Racing>(GetWorld()->GetFirstPlayerController());
-	if (PlayerController)PlayerState = PlayerController->GetPlayerState<APlayerState_Racing>();
-
-	if (PlayerState)PlayerState->DelegateList_UpdatedPoints.AddUObject
-	(this, &UUserWidget_ScreenData::PlayerStatePointsUpdated); 
-	else UE_LOG(LogTemp, Warning, TEXT("ScreenWidget: Cant get player state."));
+	//if (PlayerController)SetPlayerState(PlayerController->GetPlayerState<APlayerState_Racing>());
 
 	GameState = Cast<AGameState_Playing>(GetWorld()->GetGameState());
-	if (GameState &&false) {
-		if (GameState->bPointsWasReplicated) { 
+	if (GameState) {
+		if (GameState->bPointsWasReplicated || GameState->HasAuthority()) { 
 			RefreshPointsFromGameState(*GameState->GetSavedPoints());
 		}
-		else
-			Handle_PointsUpdate = GameState->DelegateList_UpdatePoints.AddUObject
-		(this, &UUserWidget_ScreenData::RefreshPointsFromGameState);/*
-		UE_LOG(LogTemp, Warning, TEXT("Screen widget: players registred in game state %i."),
-			GameState->GetSavedPoints()->PlayersPoints.Num());*/
+		else Handle_PointsUpdate = GameState->DelegateList_UpdatePoints.AddUObject
+			(this, &UUserWidget_ScreenData::RefreshPointsFromGameState);
+
+		GameState->DelegateList_PlayersPointsUpdated.AddUObject
+		(this,&UUserWidget_ScreenData::UpdatePointsVisualization);
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Screen widget: cant attach self to gamestate points update."));
@@ -38,15 +34,12 @@ bool UUserWidget_ScreenData::Initialize()
 	FTimerHandle UnusedHandle;
 	GetWorld()->GetTimerManager().SetTimer(UnusedHandle,this,
 		&UUserWidget_ScreenData::RefreshPointsFromGameState,3);*/
+	//bInitialized = true;
+	//if(PlayerState)PlayerState->ChangePoints(0);
 	return true;
 }
 
-void UUserWidget_ScreenData::PlayerStatePointsUpdated(int8 NewValue)
-{
-	if (!PlayerState)return;
-	UpdatePointsVisualization(PlayerState->GetPlayerId(),NewValue);
 
-}
 void UUserWidget_ScreenData::Resume()
 {
 	if (!IsValid(PlayerController))return;
@@ -57,32 +50,44 @@ void UUserWidget_ScreenData::Resume()
 
 void UUserWidget_ScreenData::RefreshPointsFromGameState(const TArray<FJustPointsMap>& PointsList)
 {
-
-	return;
-	if (!GameState || !VerticalBox_Buttons)return;
-	if (GameState)GameState->DelegateList_UpdatePoints.Remove(Handle_PointsUpdate);
-	VerticalBox_Buttons->ClearChildren();/*
+	if (!GameState || !VerticalBox_Points)return;
+	GameState->DelegateList_UpdatePoints.Remove(Handle_PointsUpdate);
+	/*UE_LOG(LogTemp, Warning, TEXT("Screen widget: clearing poitns list. %i childs."),
+		VerticalBox_Points->GetChildrenCount());*/
+	VerticalBox_Points->ClearChildren();
+	/*
 	UE_LOG(LogTemp, Warning, TEXT("Screen widget: refreshing points list. players registred in game state %i."),
 		GameState->GetSavedPoints()->PlayersPoints.Num());*/
 	
 	UUserWidget_PlayersPoints* TempPoints;
 	for (FJustPointsMap Pair : PointsList) {
 
-		UE_LOG(LogTemp, Warning, TEXT("Screen widget: found saved points %i - %i."),
-			Pair.PlayerID, Pair.PlayersPoints);
+		//UE_LOG(LogTemp, Warning, TEXT("Screen widget: found saved points %i - %i."),	Pair.PlayerID, Pair.PlayersPoints);
 		TempPoints = CreateWidget<UUserWidget_PlayersPoints>(PlayerController, PointsWidgetClass);
 		TempPoints->InitializePointsWidget(Pair.PlayerID, Pair.PlayersPoints);
 		VerticalBox_Points->AddChild(TempPoints);
 	}
+	if(PlayerState)PlayerState->ChangePoints(0);
 	
 }
 
 void UUserWidget_ScreenData::SetPlayerState(APlayerState_Racing* State)
 {
-	if (PlayerState)return;
+	if (!IsValid(State)) {
+		UE_LOG(LogTemp, Warning, TEXT("Screen widget: passed empty player state."));
+		return;
+	}
+	if (PlayerState) { 
+		UE_LOG(LogTemp, Warning, TEXT("Screen widget: already have player state."));
+		return;
+	}
 	PlayerState = State; 
-	if(PlayerState)PlayerState->DelegateList_UpdatedPoints.AddUObject
-	(this, &UUserWidget_ScreenData::PlayerStatePointsUpdated);
+	PlayerState->ChangePoints(0);
+
+	/*
+	PlayerState->DelegateList_UpdatedPoints.AddUObject
+	(this, &UUserWidget_ScreenData::UpdatePointsVisualization);
+	PlayerState->ChangePoints(0);*/
 }
 
 void UUserWidget_ScreenData::BackToMenu()
@@ -110,6 +115,9 @@ void UUserWidget_ScreenData::UpdatePointsVisualization(int32 PlayerID,int8 NewVa
 		UE_LOG(LogTemp, Warning, TEXT("Screen widget: no widget points box found."));
 		return;
 	}
+	/*
+	UE_LOG(LogTemp, Warning, TEXT("Screen widget: updating poitns list. %i childs."),
+		VerticalBox_Points->GetChildrenCount());*/
 	UUserWidget_PlayersPoints* CastedChild;
 	bool bFoundWidget=false;
 	for (UWidget* Child : VerticalBox_Points->GetAllChildren()) {
@@ -118,6 +126,7 @@ void UUserWidget_ScreenData::UpdatePointsVisualization(int32 PlayerID,int8 NewVa
 		if (CastedChild->PlayerID != PlayerID)continue;
 		bFoundWidget = true;
 		CastedChild->UpdateText(NewValue);
+		break;
 	};
 	if (bFoundWidget)return;
 	if (!IsValid(PointsWidgetClass)) {

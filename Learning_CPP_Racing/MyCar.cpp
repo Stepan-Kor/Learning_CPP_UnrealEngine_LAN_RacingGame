@@ -65,12 +65,16 @@ AMyCar::AMyCar()
 // Called when the game starts or when spawned
 void AMyCar::BeginPlay()
 {
+	//UE_LOG(LogTemp, Error, TEXT("Pawn: START."));
 	Super::BeginPlay();
-	GameState=Cast<AGameState_Playing >(UGameplayStatics::GetGameState(GetWorld()));
-	if (GameState)ScreenWidget = Cast<UUserWidget_ScreenData>(GameState->GetScreenWidget());
-	RacingController = Cast< APlayerController_Racing>(GetController());
-	//if (HasLocalNetOwner())UE_LOG(LogTemp,Warning,TEXT("Car: begin play change points %d."),ChangePoints(0));
+	if (HasLocalNetOwner()) {
+		GameState = Cast<AGameState_Playing >(UGameplayStatics::GetGameState(GetWorld()));
+		RacingController = Cast< APlayerController_Racing>(GetController());
+		//if(RacingController)ScreenWidget=RacingController->GetWidgetScreenData();
+		//UE_LOG(LogTemp, Warning, TEXT("Car: begin play change points %d."), ChangePoints(0));
+	}
 }
+
 void AMyCar::Pause()
 {
 	if (!IsValid(ScreenWidget))return;
@@ -90,6 +94,12 @@ void AMyCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveForward",this,&AMyCar::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight",this,&AMyCar::MoveRight);
 }
+APlayerState_Racing* AMyCar::GetPlayerStateRacing()
+{
+	if (PlayerState)return PlayerState;
+	PlayerState=GetPlayerState<APlayerState_Racing>();
+	return PlayerState;
+}
 void AMyCar::MoveForward(float Value)
 {
 	//if (Value == 0)return;
@@ -107,9 +117,8 @@ bool AMyCar::ChangePoints(int8 Diference)
 {
 	if (!HasLocalNetOwner())return false;
 	//Cast<UMyGameInstance>(GetGameInstance())->Server_SomeTestFunction();
-	APlayerState_Racing* LPlayerState= GetPlayerState<APlayerState_Racing>();
-	if (LPlayerState)LPlayerState->ChangePoints(Diference);
-	else { 
+	if (GetPlayerStateRacing())PlayerState->ChangePoints(Diference);
+	else {
 		UE_LOG(LogTemp, Warning, TEXT("Car: cant get player state."));
 		return false; }
 	return true;
