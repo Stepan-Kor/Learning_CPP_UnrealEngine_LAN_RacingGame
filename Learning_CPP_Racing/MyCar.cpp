@@ -14,7 +14,6 @@
 // Sets default values
 AMyCar::AMyCar()
 {
-	///hggcfvg
 	UWheeledVehicleMovementComponent4W* Vehicle4W = CastChecked<UWheeledVehicleMovementComponent4W>(GetVehicleMovement());
 	/*
 	FString TempString = IsValid(Vehicle4W) ? "Car constructor: Cast vehcl move comp valid." :
