@@ -18,11 +18,14 @@ USTRUCT() struct FJustPointsMap {
 	FJustPointsMap() : PlayerID(0),PlayersPoints(0) {	};
 	UPROPERTY()int32 PlayerID;
 	UPROPERTY()int8 PlayersPoints;
+	bool operator==(const FJustPointsMap OtherMap) { 
+		return (OtherMap.PlayerID==PlayerID && OtherMap.PlayersPoints==PlayersPoints); 
+	}
 	//UPROPERTY()int8 UpdateForcer;
 };
 //typedef TMap<APlayerController_Racing*, int8> Pointsmap;
 DECLARE_MULTICAST_DELEGATE_OneParam
-	(FDelegateType_PointsUpdated, const TArray <FJustPointsMap>&);
+	(FDelegateType_AllPointsUpdated, const TArray <FJustPointsMap>&);
 DECLARE_MULTICAST_DELEGATE_TwoParams
 	(FDelegateType_PlayersPointsUpdated, int32, int8);
 
@@ -34,7 +37,7 @@ protected:
 	UUserWidget* ScreenWidget;
 	APlayerController_Racing* PlayerController;
 	virtual void BeginPlay()override;
-	APlayerState_Racing* PlayerState;
+	class APlayerState_Racing* PlayerState;
 	UPROPERTY(Transient, EditAnywhere,ReplicatedUsing= OnRep_PointsChanged)
 		TArray <FJustPointsMap> Map_PlayersPoints;
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_PointsChanged)
@@ -45,12 +48,15 @@ protected:
 	UFUNCTION(Server, Unreliable)void Server_TestCall();
 	void Server_TestCall_Implementation();
 public:
+	UFUNCTION()void PlayerDidEnter(int32 PlayerID);
+	UFUNCTION()void PlayerDidExit(int32 PlayerID);
+	UFUNCTION(NetMultiCast,Reliable)void Multi_SendNewPoints(const TArray <FJustPointsMap>& NewPoints);
+	void Multi_SendNewPoints_Implementation(const TArray <FJustPointsMap>& NewPoints);
 	bool GetPlayerStateRacing(APlayerController_Racing* LPlayerController=nullptr,
-		APlayerState_Racing* LPlayerState=nullptr);
-	bool bPointsWasReplicated{false};
+	class	APlayerState_Racing* LPlayerState=nullptr);
 	TArray<FJustPointsMap>* GetSavedPoints();
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
-	FDelegateType_PointsUpdated DelegateList_UpdatePoints;
+	FDelegateType_AllPointsUpdated DelegateList_AllPointsUpdated;
 	FDelegateType_PlayersPointsUpdated DelegateList_PlayersPointsUpdated;
 	UPROPERTY(EditDefaultsOnly)TSubclassOf<UUserWidget> ScreenWidgetClass;
 	UFUNCTION(NetMultiCast, Reliable)void Multi_IncreasePointsOfPlayer(int32 PlayerID, int8 Amount = 0);

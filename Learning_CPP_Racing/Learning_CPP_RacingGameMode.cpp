@@ -5,7 +5,16 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/KismetArrayLibrary.h"
+#include "GameState_Playing.h"
+#include "PlayerState_Racing.h"
 #include "Learning_CPP_RacingHud.h"
+
+void ALearning_CPP_RacingGameMode::StartPlay()
+{
+	//UE_LOG(LogTemp, Error, TEXT("GameMode: START."));
+	Super::StartPlay();
+	GameStateRacing = GetGameState<AGameState_Playing>();
+}
 
 ALearning_CPP_RacingGameMode::ALearning_CPP_RacingGameMode()
 {
@@ -42,13 +51,21 @@ void ALearning_CPP_RacingGameMode::RestartPlayer(AController* NewPlayer)
 void ALearning_CPP_RacingGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-	//UE_LOG(LogTemp,Warning,TEXT("Game Mode: Player %s Post login."), *NewPlayer->GetName());
+	if (!NewPlayer || !GameStateRacing)return;
+	UE_LOG(LogTemp,Warning,TEXT("Game Mode: Player %s Post login."), *NewPlayer->GetName());
+	APlayerState* PLST = NewPlayer->GetPlayerState<APlayerState>();
+	if (!PLST)return;
+	GameStateRacing->PlayerDidEnter(PLST->GetPlayerId());
 }
 
-void ALearning_CPP_RacingGameMode::StartPlay()
+
+void ALearning_CPP_RacingGameMode::Logout(AController* Exiting)
 {
-	//UE_LOG(LogTemp, Error, TEXT("GameMode: START."));
-	Super::StartPlay();
+	Super::Logout(Exiting);
+	APlayerState* PlayerStateTemp = Exiting->GetPlayerState<APlayerState>();
+	if (IsValid(PlayerStateTemp) && IsValid(GameStateRacing)) {
+		GameStateRacing->PlayerDidExit(PlayerStateTemp->GetPlayerId());
+	}
 }
 
 AActor* ALearning_CPP_RacingGameMode::FindStartingPointCustom()

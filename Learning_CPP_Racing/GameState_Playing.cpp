@@ -43,7 +43,7 @@ void AGameState_Playing::Multi_IncreasePointsOfPlayer_Implementation(int32 Playe
 	UE_LOG(LogTemp, Warning, TEXT("Game State(%d): multicast implementation. String: %s"),
 		HasAuthority(),*ReplicatedString);
 	//ChangePlayersPoints(Controller, Amount);
-	//DelegateList_UpdatePoints.Broadcast(PlayerID, Amount);
+	//DelegateList_AllPointsUpdated.Broadcast(PlayerID, Amount);
 	for (auto A : Map_PlayersPoints) {
 		UE_LOG(LogTemp,Warning,TEXT("Game State(%d): have ponts pair %i : %i."),
 			HasAuthority(), A.PlayerID,A.PlayersPoints);
@@ -55,8 +55,6 @@ void AGameState_Playing::Multi_IncreasePointsOfPlayer_Implementation(int32 Playe
 void AGameState_Playing::OnRep_PointsChanged()
 {
 	
-	if (!bPointsWasReplicated) 	bPointsWasReplicated = true;
-	DelegateList_UpdatePoints.Broadcast(Map_PlayersPoints);	
 	/*	UE_LOG(LogTemp,Warning,TEXT
 	("Game State(%d): OnRep function called\n\t\tstring:%s, amount of ints:%i, amount of pairs %i"),
 		HasAuthority(),*ReplicatedString, ReplicatedTestInt.Num(), Map_PlayersPoints.Num());*/
@@ -75,7 +73,6 @@ bool AGameState_Playing::GetPlayerStateRacing(APlayerController_Racing* LPlayerC
 	else if (PlayerController)PlayerState = PlayerController->GetPlayerState<APlayerState_Racing>();
 	if (HasAuthority()) {
 		SetReplicates(true);
-		bPointsWasReplicated = true;
 	}
 	else {
 		if (IsValid(PlayerController)) {
@@ -88,6 +85,35 @@ bool AGameState_Playing::GetPlayerStateRacing(APlayerController_Racing* LPlayerC
 	}
 	return IsValid(PlayerState);
 }
+
+void AGameState_Playing::PlayerDidEnter(int32 PlayerID)
+{
+	Map_PlayersPoints.Add({PlayerID,0});
+	UE_LOG(LogTemp, Warning, TEXT("GameState: player enter hapened - broadcasting new points list."));
+	Multi_SendNewPoints(Map_PlayersPoints);
+}
+
+void AGameState_Playing::PlayerDidExit(int32 PlayerID)
+{
+	UE_LOG(LogTemp, Warning, TEXT("GameState: removing player %i points from list."), PlayerID);
+	bool bWasChanges{ false };
+	for (int8 i = Map_PlayersPoints.Num() - 1; i > -1;i--) {
+		if (Map_PlayersPoints[i].PlayerID == PlayerID) { 
+			Map_PlayersPoints.RemoveAt(i); 
+			bWasChanges = true;
+		}
+	}
+	if(bWasChanges)	Multi_SendNewPoints(Map_PlayersPoints);
+	else UE_LOG(LogTemp, Warning, TEXT("GameState: cant find player %i points in list."), PlayerID);
+}
+
+void AGameState_Playing::Multi_SendNewPoints_Implementation(const TArray <FJustPointsMap>& NewPoints)
+{
+	Map_PlayersPoints = NewPoints;
+	UE_LOG(LogTemp,Warning,TEXT("GameState: player exit hapened - broadcasting new points list."));
+	DelegateList_AllPointsUpdated.Broadcast(Map_PlayersPoints);
+}
+
 
 void AGameState_Playing::ChangePlayersPoints(int32 PlayerStateID, int8 NewValue)
 {	/* UE_LOG(LogTemp,Warning,TEXT("Game State (%s): changing player(%i) points to %i. And broadcasting...")
@@ -106,7 +132,7 @@ void AGameState_Playing::ChangePlayersPoints(int32 PlayerStateID, int8 NewValue)
 			Map_PlayersPoints.Add(TempMap);
 			//Map_PlayersPoints.Add({ PlayerStateID,NewValue });
 		}
-		DelegateList_UpdatePoints.Broadcast(Map_PlayersPoints);
+		DelegateList_AllPointsUpdated.Broadcast(Map_PlayersPoints);
 		/*
 		FString TempString{ "empty" };
 		if (GetOwner())TempString = GetOwner()->GetName();
