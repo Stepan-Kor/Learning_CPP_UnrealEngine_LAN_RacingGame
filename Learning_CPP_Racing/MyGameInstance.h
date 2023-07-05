@@ -22,8 +22,14 @@ protected:
 	bool SessionInCreation = false;
 	bool SessionsSearchInProgress = false;
 	bool ConectingToSessionInProcess = false;
+	bool bCurrentlyInSession{ false };
 	IOnlineSessionPtr SessionInterface;
+	FName CurrentSessionName;
+	float SessionCreationJoinStart;
 public:
+	bool TimeSinceJoinCreationPassed();
+	bool CurentlyInSession();
+	void LeaveSession();
 	UFUNCTION(Server, Reliable)void Server_SomeTestFunction();
 	void Server_SomeTestFunction_Implementation();
 	UFUNCTION(NetMultiCast, Reliable)void Multi_SomeTestFunction();

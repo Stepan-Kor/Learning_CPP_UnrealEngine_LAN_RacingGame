@@ -25,11 +25,14 @@ public:
 	UPROPERTY(meta = (BindWidget))UVerticalBox* VerticalBox_Buttons;
 	UPROPERTY(meta = (BindWidget))UVerticalBox* VerticalBox_Points;
 	void Pause();
-	UFUNCTION() void UpdatePointsVisualization(int32 PlayerID, int8 NewValue);
+	UFUNCTION() void UpdatePlayerPoints(int32 PlayerID, int8 NewValue);
 	UPROPERTY(EditDefaultsOnly)TSubclassOf<class UUserWidget_PlayersPoints> PointsWidgetClass;
 	UFUNCTION() void RefreshPointsFromGameState(const TArray <FJustPointsMap>& PointsList);
 	void SetPlayerState(APlayerState_Racing* State);
+	class UMyGameInstance* GetGameInstance();
+	class AGameState_Playing* GetGameState();
 protected:
+	void TryStartSettings();
 	bool bInitialized{false};
 	FDelegateHandle Handle_PointsUpdate;
 	virtual bool Initialize() override;
@@ -37,6 +40,7 @@ protected:
 	class APlayerController_Racing* PlayerController;
 	class APlayerState_Racing* PlayerState;
 	class AGameState_Playing* GameState;
+	class UMyGameInstance* GameInstance;
 	UFUNCTION() void BackToMenu();
 	UFUNCTION() void QuitGame();
 };
